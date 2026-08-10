@@ -5,6 +5,7 @@ const { execFileSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
 const gameFile = path.join(root, 'game.js');
+const level2File = path.join(root, 'level2.js');
 
 function makeElement() {
   const e = {
@@ -32,6 +33,28 @@ function loadGame() {
   return ctx.window.__gameDebug;
 }
 
+function loadLevel2() {
+  const elements = new Map();
+  const rootEl = makeElement();
+  const document = {
+    body: makeElement(),
+    getElementById(id) { if (!elements.has(id)) elements.set(id, makeElement()); return elements.get(id); },
+    querySelector(sel) { if (sel.startsWith('#')) return this.getElementById(sel.slice(1)); return rootEl; },
+    querySelectorAll(sel) { return sel === '[data-action]' ? [] : []; },
+    createElement() { return makeElement(); }
+  };
+  const ctx = {
+    console, Math, JSON,
+    localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
+    document, window: {}
+  };
+  ctx.window = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(level2File, 'utf8'), ctx, { filename: 'level2.js' });
+  if (!ctx.window.__level2Debug) throw new Error('window.__level2Debug not exposed');
+  return ctx.window.__level2Debug;
+}
+
 const clone = x => JSON.parse(JSON.stringify(x));
 const make = (id, type, place = 'port', refined = false) => ({ id, kind: 'goods', type, place, refined });
 let passed = 0;
@@ -43,6 +66,7 @@ function check(name, ok) {
 
 console.log('1) Syntax check');
 execFileSync(process.execPath, ['--check', gameFile], { stdio: 'inherit' });
+execFileSync(process.execPath, ['--check', level2File], { stdio: 'inherit' });
 
 console.log('\n2) Rule checks');
 const d = loadGame();
@@ -93,4 +117,15 @@ check('full run reaches final over state', final.day === 7 && final.over === tru
 check('all normal orders completed', ['breakfast', 'trial', 'tea', 'jamfair', 'tower'].every(x => final.done.includes(x)));
 check('all three members recruited', ['captain', 'jam', 'box'].every(x => final.members.includes(x)));
 console.log('\nPlaythrough log:', JSON.stringify(log, null, 2));
+console.log('\n4) Level 2 deterministic acceptance path');
+const l2 = loadLevel2();
+l2.restart();
+l2.apply('gatherWood');
+l2.apply('gatherOre');
+let early = l2.getState();
+check('Level 2 AI acts after exactly two meaningful player steps', early.step === 2 && early.ai.wood === 1);
+check('Level 2 keeps card-table resource cards after gathering', early.cards.includes('wood') && early.cards.includes('stone'));
+const won = l2.runAcceptancePath();
+check('Level 2 deterministic acceptance path wins by destroying AI base', won.over && won.winner === 'win' && won.aiBase <= 0);
+
 console.log(`\nOK: ${passed} checks passed.`);

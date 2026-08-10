@@ -39,8 +39,8 @@
           <h3>潮汐前线</h3>
           <p>敌我同时发展。每一次采集、建设或进攻都会推进局势，找准防守与快攻的时机。</p>
           <ul><li>行动节拍</li><li>AI 公开意图</li><li>双基地对抗</li></ul>
-          <button class="button" type="button" disabled aria-describedby="level-two-note">第二关制作中</button>
-          <small id="level-two-note">即将开启：先造哨塔稳守，还是抢先武装压制 AI？</small>
+          <a class="button" href="level2.html" aria-describedby="level-two-note">开始第二关</a>
+          <small id="level-two-note">先造哨塔稳守，还是抢先武装压制 AI？</small>
         </article>
 
         <article class="level locked" aria-label="第三关尚未解锁">
@@ -59,5 +59,17 @@
       <p>第二关将首次让 AI 拥有可读的发展计划。你可以看到它下一步要采集、建造还是出兵。</p>
     </section>
   </main>
+  <script>
+    try {
+      if (localStorage.getItem('level2Complete') === 'yes') {
+        document.querySelector('.progress').textContent = '2 / 3 已完成';
+        const level2 = document.querySelector('.level.next');
+        level2.classList.remove('next');
+        level2.classList.add('complete');
+        level2.querySelector('.tag').textContent = '已完成';
+        level2.querySelector('.signal').textContent = '✓';
+      }
+    } catch (_) {}
+  </script>
 </body>
 </html>

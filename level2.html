@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第二关 - 潮汐前线</title>
+  <link rel="stylesheet" href="fun.css">
+  <link rel="stylesheet" href="level2.css">
+</head>
+<body>
+  <aside class="left">
+    <h1>潮汐前线</h1>
+    <p>延续第一关的卡牌桌面：点击资源点采集，拖卡叠卡建设、武装和战斗。</p>
+    <div class="goal"><b>目标</b><span id="goal">摧毁 AI 营地。营地归零则失败。</span></div>
+    <button id="restart">重开第二关</button>
+    <a href="home.html">返回主界面</a>
+    <h2>基础配方</h2>
+    <div class="recipe">村民 + 树林/矿脉 → 资源</div>
+    <div class="recipe">营地 + 木头 + 石头 → 哨塔</div>
+    <div class="recipe">村民 + 木头 + 石头 → 持矛村民</div>
+  </aside>
+  <main>
+    <div class="top"><b id="status">第二关：每次有意义的采集、建设或进攻推进 1 格。</b><span id="count">行动 0 · AI 将在 2 格后行动</span></div>
+    <section id="table" class="table" aria-label="第二关卡牌桌面"></section>
+  </main>
+  <aside class="right">
+    <h2>AI 意图卡</h2>
+    <article class="intent"><b id="intentTitle">正在采集木头</b><p id="intentBody">AI 需要资源建设训练营。你可以突袭树林打断它。</p><span id="intentEta">剩余 2 玩家行动格</span></article>
+    <h2>战斗日志</h2>
+    <ol id="log"></ol>
+    <h2>可读规则</h2>
+    <div class="recipe">每 2 个玩家行动格，AI 执行 1 次公开行动。</div>
+    <div class="recipe">拖持矛村民到 AI 树林可停 AI 木头收入 2 次。</div>
+    <div class="recipe">拖持矛村民到 AI 营地可造成伤害并争取胜利。</div>
+  </aside>
+  <script src="level2.js"></script>
+</body>
+</html>
