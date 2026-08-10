@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>莓风群岛 - 垂直切片</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>莓风群岛</h1>
+      <p>岛内二合、岛间排序、预测收工，第 7 天最终启航。</p>
+    </div>
+    <div class="stats" aria-live="polite">
+      <span>Day <b id="day">1</b>/7</span>
+      <span>金币 <b id="coins">3</b></span>
+      <span>预测 <b id="forecast">0</b></span>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel guide">
+      <h2>今日目标</h2>
+      <p id="hint">点击两件相同货物，或拖到一起二合。点击收工前先看预测。</p>
+      <div id="tutorial" class="tutorial" aria-live="polite"></div>
+      <div id="orders" class="orders"></div>
+      <details open>
+        <summary>收益明细</summary>
+        <pre id="details"></pre>
+      </details>
+      <div class="actions">
+        <button id="endDay">收工</button>
+        <button id="restart" class="secondary">重开</button>
+      </div>
+    </section>
+
+    <section id="route" class="route" aria-label="岛屿航线，可拖拽或用排序按钮调整"></section>
+
+    <section class="panel side">
+      <h2>商店 / 成员</h2>
+      <div id="members" class="members"></div>
+      <div id="shop" class="shop"></div>
+      <p id="message" role="status">欢迎来到莓风群岛。</p>
+    </section>
+  </main>
+
+  <section id="modal" class="modal hidden" role="dialog" aria-modal="true"></section>
+  <script src="game.js"></script>
+</body>
+</html>

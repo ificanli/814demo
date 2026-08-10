@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>莓风群岛 - 堆叠大陆版RTS</title>
+  <link rel="stylesheet" href="fun.css">
+</head>
+<body>
+  <aside class="left">
+    <h1>莓风群岛</h1>
+    <p>堆叠大陆版本 RTS：拖卡完成采集、建造、武装、科技和战斗。</p>
+    <div class="goal"><b>目标</b><span id="goal">发展基地，集结远征小队，击败雾岛巨兽。</span></div>
+    <button id="restart">重开实验</button>
+    <a href="index.html">返回旧版</a>
+  </aside>
+  <main>
+    <div class="top"><b id="status">拖动一张卡，叠到另一张卡上。</b><span id="count">科技 0/3 · Boss 未击败</span></div>
+    <section id="table" class="table" aria-label="卡牌桌面"></section>
+  </main>
+  <aside class="right">
+    <h2>发现日志</h2>
+    <ol id="log"></ol>
+    <h2>已知配方</h2>
+    <div id="recipes" class="recipes"></div>
+  </aside>
+  <script src="fun.js"></script>
+</body>
+</html>

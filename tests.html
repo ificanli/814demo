@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>莓风群岛规则测试</title>
+  <style>
+    body{font-family:system-ui,"Microsoft YaHei",sans-serif;max-width:900px;margin:32px auto;padding:0 18px;background:#f5f1e7;color:#243225}button{padding:10px 16px;font-weight:700}.pass{color:#16733b}.fail{color:#b42318}li{margin:8px 0}#game-host{display:none}
+  </style>
+</head>
+<body>
+  <h1>莓风群岛规则测试</h1>
+  <p>该页面通过游戏公开调试接口执行确定性规则检查，不依赖外部测试框架。</p>
+  <button id="run">运行全部测试</button>
+  <p id="summary">等待执行。</p>
+  <ol id="results"></ol>
+  <div id="game-host" aria-hidden="true">
+    <div id="route"></div><div id="orders"></div><div id="members"></div><div id="shop"></div><div id="message"></div>
+    <span id="day"></span><span id="coins"></span><span id="forecast"></span><pre id="details"></pre><div id="hint"></div>
+    <div id="modal" class="hidden"></div><button id="endDay"></button><button id="restart"></button>
+  </div>
+  <script src="game.js"></script>
+  <script>
+    const results=document.querySelector('#results'),summary=document.querySelector('#summary');
+    const clone=x=>JSON.parse(JSON.stringify(x));
+    function item(name,ok,detail=''){const li=document.createElement('li');li.className=ok?'pass':'fail';li.textContent=`${ok?'通过':'失败'}：${name}${detail?'，'+detail:''}`;results.append(li);return ok}
+    function run(){results.innerHTML='';summary.className='';summary.textContent='正在运行规则测试…';let pass=0,total=0;const check=(name,fn)=>{total++;try{if(item(name,!!fn()))pass++}catch(e){item(name,false,e.message)}};
+      try{const d=window.__gameDebug;if(!d){summary.className='fail';summary.textContent='游戏调试接口未加载。请刷新页面后重试。';return}
+      d.restart();let base=d.getState(),pure=d.pure;
+      check('旧存档版本具有显式版本号',()=>base.version===2);
+      const berries=base.cards.filter(x=>x.kind==='goods'&&x.type==='berry0');let merged=pure.mergeCards(base,berries[0].id,berries[1].id);
+      check('二合消耗两件并生成一件莓酱',()=>merged.ok&&merged.state.cards.length===base.cards.length-1&&merged.card.type==='berry1g');
+      let noOrder=clone(base);noOrder.cards=noOrder.cards.filter(x=>x.kind==='goods');noOrder.checked={};let p1=pure.calculateSettlement(noOrder);
+      let withOrder=clone(noOrder);withOrder.checked={breakfast:true};let p2=pure.calculateSettlement(withOrder);
+      check('未勾选订单不会自动交付',()=>p1.orderReward===0&&p1.base===4);
+      check('订单先消耗货物再计算装船',()=>p2.orderReward===3&&p2.base===2&&p2.done.includes('breakfast'));
+      let held=clone(noOrder);held.cards[0].place='work';let ph=pure.calculateSettlement(held);
+      check('非港岛货物保留且不参与本日装船',()=>ph.base===3);
+      let production=clone(base);production.cards=production.cards.filter(x=>x.kind==='fac');let pp=pure.calculateSettlement(production);
+      check('设施产出作为次日库存而非当日分数',()=>pp.production===4&&pp.base===0&&pp.total===0);
+      let finalState=clone(base);finalState.day=7;finalState.coins=40;finalState.finalChoice='coins';let cf=pure.consumeFinal(finalState,[]);
+      check('金币最终订单真实扣除40金币',()=>cf.done&&cf.bonus===30&&cf.coins===0);
+      let basket={id:'basket',kind:'goods',type:'berry3g',place:'port',refined:true};finalState.finalChoice='basket';let cb=pure.consumeFinal(finalState,[basket]);
+      check('莓篮最终订单消耗莓篮且奖励差异化',()=>cb.done&&cb.bonus===60&&cb.pool.length===0);
+      let rm=pure.routeMult(base,[],false);
+      let day2=clone(base);day2.day=2;let wind=pure.routeMult(day2,day2.cards.filter(x=>x.kind==='goods'),true);
+      check('Day2顺风潮提供可见装船倍率',()=>wind.lines.some(x=>x.includes('顺风潮'))&&wind.m>rm.m);
+      let day4=clone(base);day4.day=4;let shop=pure.shopFor(day4);
+      check('Day4商店保证出现老船长',()=>shop.some(x=>x.member==='captain'));
+      let jamOrder=clone(base);jamOrder.day=4;jamOrder.cards=[{id:'j1',kind:'goods',type:'berry1g',place:'port',refined:false},{id:'j2',kind:'goods',type:'berry1g',place:'port',refined:false}];jamOrder.checked={jamfair:true};let jo=pure.calculateSettlement(jamOrder);
+      check('新增果酱集市订单在集市日获得额外奖励',()=>jo.done.includes('jamfair')&&jo.orderReward===12&&jo.lines.some(x=>x.includes('集市日')));
+      let day6=clone(base);day6.day=6;let p6=pure.calculateSettlement(day6);
+      check('Day6丰收晨雾提高次日库存产出',()=>p6.production===6&&p6.lines.some(x=>x.includes('丰收晨雾')));
+      check('发生溢出时不触发无损运输',()=>!rm.lines.some(x=>x.includes('无损运输')));
+      summary.className=pass===total?'pass':'fail';summary.textContent=`${pass}/${total} 项通过。`;
+      d.restart();
+      }catch(e){summary.className='fail';summary.textContent=`测试无法执行：${e.message||e}`;item('测试页运行时错误',false,e.message||String(e))}
+    }
+    document.querySelector('#run').addEventListener('click',run);
+    run();
+  </script>
+</body>
+</html>

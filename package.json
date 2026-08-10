@@ -1,0 +1,11 @@
+{
+  "name": "berry-islands-slice",
+  "version": "0.1.0",
+  "private": true,
+  "description": "莓风群岛 HTML 卡牌二合经营游戏垂直切片",
+  "scripts": {
+    "test": "node automation/run.js",
+    "check": "node --check game.js",
+    "serve": "node automation/serve.js"
+  }
+}
